@@ -37,9 +37,9 @@ export default {
         'bounce-in': 'bounceIn 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
         'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'timer-pulse': 'timerPulse 1.5s ease-in-out infinite'
+'timer-pulse': 'timerPulse 1.5s ease-in-out infinite'
       },
-keyframes: {
+      keyframes: {
         confetti: {
           '0%': { transform: 'scale(0) rotate(0deg)', opacity: '0' },
           '50%': { transform: 'scale(1.2) rotate(180deg)', opacity: '1' },
