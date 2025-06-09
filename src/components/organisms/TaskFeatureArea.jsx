@@ -5,11 +5,11 @@ import { isToday, isPast, isThisWeek } from 'date-fns';
 import EmptyStateMessage from '@/components/molecules/EmptyStateMessage';
 import QuickAddTaskButton from '@/components/molecules/QuickAddTaskButton';
 import SearchBar from '@/components/molecules/SearchBar';
+import SelectionCheckbox from '@/components/molecules/SelectionCheckbox';
 import TaskForm from '@/components/organisms/TaskForm';
 import TaskItem from '@/components/organisms/TaskItem';
 import { taskService } from '@/services';
 import { fuzzySearch, taskMatchesSearch } from '@/utils/searchUtils';
-
 const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory }) => {
     const [showForm, setShowForm] = useState(false);
     const [draggedTask, setDraggedTask] = useState(null);
