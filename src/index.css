@@ -142,5 +142,49 @@ z-index: 1000;
   50% { 
     opacity: 1;
     transform: scale(1.1);
+}
+}
+
+/* Task selection styles */
+.task-selected {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.1);
+}
+
+.task-selected:hover {
+  background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+}
+
+/* Selection checkbox responsive sizing */
+@media (max-width: 640px) {
+  .selection-checkbox {
+    width: 1.125rem;
+    height: 1.125rem;
   }
+  
+  .selection-checkbox svg {
+    width: 0.675rem;
+    height: 0.675rem;
+  }
+}
+
+/* Task list header styles */
+.task-list-header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+/* Bulk selection animation */
+@keyframes bulk-select {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.bulk-select-animation {
+  animation: bulk-select 0.3s ease-out;
+}
 }

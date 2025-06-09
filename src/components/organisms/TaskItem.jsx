@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import TaskCheckbox from '@/components/molecules/TaskCheckbox';
+import SelectionCheckbox from '@/components/molecules/SelectionCheckbox';
 import TaskMeta from '@/components/molecules/TaskMeta';
 import TaskItemActions from '@/components/molecules/TaskItemActions';
 import TaskTimer from '@/components/molecules/TaskTimer';
@@ -9,7 +10,22 @@ import TaskForm from '@/components/organisms/TaskForm';
 import { isPast } from 'date-fns';
 import { getHighlightedParts } from '@/utils/searchUtils';
 import { formatTime } from '@/utils/timerUtils';
-const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelete, onEdit, onDragStart, onDragOver, onDrop, index, searchQuery = '' }, ref) => {
+
+const TaskItem = React.forwardRef(({ 
+    task, 
+    categories, 
+    onToggleComplete, 
+    onDelete, 
+    onEdit, 
+    onDragStart, 
+    onDragOver, 
+    onDrop, 
+    index, 
+    searchQuery = '',
+    isSelected = false,
+    onSelectionChange,
+    showSelection = false
+}, ref) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && !task.completed;
@@ -34,7 +50,7 @@ const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelet
         ));
     };
 
-    return (
+return (
         <motion.div
             ref={ref}
             key={task.id}
@@ -43,22 +59,35 @@ const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelet
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: -20 }}
             transition={{ delay: index * 0.05 }}
-            draggable={!task.completed}
+            draggable={!task.completed && !showSelection}
             onDragStart={(e) => onDragStart(e, task)}
             onDragOver={onDragOver}
             onDrop={(e) => onDrop(e, task)}
-            className={`bg-white rounded-lg border shadow-sm hover:shadow-md transition-all duration-200 cursor-move ${
-                task.completed ? 'opacity-75' : ''
-            } ${isOverdue ? 'border-red-200 bg-red-50' : 'border-gray-200'}`}
+            className={`
+                bg-white rounded-lg border shadow-sm hover:shadow-md transition-all duration-200 
+                ${!showSelection ? 'cursor-move' : 'cursor-default'}
+                ${task.completed ? 'opacity-75' : ''}
+                ${isOverdue ? 'border-red-200 bg-red-50' : 'border-gray-200'}
+                ${isSelected ? 'task-selected' : ''}
+            `}
         >
-            <div className="p-4">
-                <div className="flex items-start gap-4">
-                    {/* Checkbox */}
+<div className="p-4">
+                <div className="flex items-start gap-3">
+                    {/* Selection Checkbox - only show when selection mode is active */}
+                    {showSelection && (
+                        <SelectionCheckbox
+                            isSelected={isSelected}
+                            onChange={() => onSelectionChange(task.id)}
+                            className="selection-checkbox mt-0.5"
+                            aria-label={`Select task: ${task.title}`}
+                        />
+                    )}
+
+                    {/* Completion Checkbox */}
                     <TaskCheckbox
                         isCompleted={task.completed}
                         onToggle={(e) => onToggleComplete(task, e)}
                     />
-
                     {/* Task Content */}
                     <div className="flex-1 min-w-0">
                         {isEditing ? (

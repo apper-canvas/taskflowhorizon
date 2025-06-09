@@ -14,7 +14,10 @@ const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory
     const [showForm, setShowForm] = useState(false);
     const [draggedTask, setDraggedTask] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-// Memoize filtered and searched tasks for performance
+    const [selectedTasks, setSelectedTasks] = useState(new Set());
+    const [showSelection, setShowSelection] = useState(false);
+
+    // Memoize filtered and searched tasks for performance
     const filteredTasks = useMemo(() => {
         let filtered = tasks.filter(task => {
             // Category filter
@@ -60,12 +63,51 @@ const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory
             // Then by order
             return a.order - b.order;
         });
-    }, [tasks, selectedCategory, filter, searchQuery]);
+}, [tasks, selectedCategory, filter, searchQuery]);
+
+    // Selection management
+    const isAllSelected = filteredTasks.length > 0 && filteredTasks.every(task => selectedTasks.has(task.id));
+    const isIndeterminate = selectedTasks.size > 0 && !isAllSelected;
+    const selectedCount = selectedTasks.size;
 
     const handleSearch = (query) => {
         setSearchQuery(query);
     };
 
+    const handleToggleSelection = () => {
+        setShowSelection(!showSelection);
+        if (showSelection) {
+            // Clear selection when hiding selection mode
+            setSelectedTasks(new Set());
+        }
+    };
+
+    const handleSelectAll = () => {
+        if (isAllSelected) {
+            // Deselect all
+            setSelectedTasks(new Set());
+        } else {
+            // Select all filtered tasks
+            const allTaskIds = new Set(filteredTasks.map(task => task.id));
+            setSelectedTasks(allTaskIds);
+        }
+    };
+
+    const handleTaskSelection = (taskId) => {
+        setSelectedTasks(prev => {
+            const newSelection = new Set(prev);
+            if (newSelection.has(taskId)) {
+                newSelection.delete(taskId);
+            } else {
+                newSelection.add(taskId);
+            }
+            return newSelection;
+        });
+    };
+
+    const clearSelection = () => {
+        setSelectedTasks(new Set());
+    };
     const createConfetti = (element) => {
         const colors = ['#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#3B82F6'];
         const rect = element.getBoundingClientRect();
@@ -261,6 +303,57 @@ return (
                 />
             </motion.div>
 
+            {/* Selection Controls */}
+            {filteredTasks.length > 0 && (
+                <motion.div
+                    initial={{ y: -10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="mb-6"
+                >
+                    <div className="task-list-header rounded-lg p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={handleToggleSelection}
+                                className="text-sm font-medium text-secondary hover:text-purple-700 transition-colors"
+                            >
+                                {showSelection ? 'Cancel Selection' : 'Select Tasks'}
+                            </button>
+                            
+                            {showSelection && (
+                                <>
+                                    <div className="w-px h-4 bg-gray-300" />
+                                    <div className="flex items-center gap-3">
+                                        <SelectionCheckbox
+                                            isSelected={isAllSelected}
+                                            isIndeterminate={isIndeterminate}
+                                            onChange={handleSelectAll}
+                                            aria-label="Select all tasks"
+                                        />
+                                        <span className="text-sm text-gray-600">
+                                            Select All ({filteredTasks.length})
+                                        </span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        
+                        {showSelection && selectedCount > 0 && (
+                            <div className="flex items-center gap-4">
+                                <span className="text-sm text-gray-600">
+                                    {selectedCount} selected
+                                </span>
+                                <button
+                                    onClick={clearSelection}
+                                    className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    Clear
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            )}
+
             {/* Quick Add Bar / New Task Form */}
             <motion.div
                 initial={{ y: -20, opacity: 0 }}
@@ -291,7 +384,7 @@ return (
 
             {/* Task List */}
             <div className="space-y-3">
-                <AnimatePresence mode="popLayout">
+<AnimatePresence mode="popLayout">
                     {filteredTasks.map((task, index) => (
                         <TaskItem
                             key={task.id}
@@ -305,6 +398,9 @@ return (
                             onDrop={handleDrop}
                             index={index}
                             searchQuery={searchQuery}
+                            isSelected={selectedTasks.has(task.id)}
+                            onSelectionChange={handleTaskSelection}
+                            showSelection={showSelection}
                         />
                     ))}
                 </AnimatePresence>
