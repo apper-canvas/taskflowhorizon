@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Button = ({ children, className, onClick, type = 'button', whileHover, whileTap, ...props }) => {
+const Button = React.forwardRef(({ children, className, onClick, type = 'button', whileHover, whileTap, ...props }, ref) => {
     return (
         <motion.button
+            ref={ref}
             type={type}
             onClick={onClick}
             className={className}
@@ -14,6 +15,9 @@ const Button = ({ children, className, onClick, type = 'button', whileHover, whi
             {children}
         </motion.button>
     );
-};
+});
+
+// Add display name for better debugging
+Button.displayName = 'Button';
 
 export default Button;

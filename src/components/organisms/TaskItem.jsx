@@ -6,7 +6,7 @@ import TaskItemActions from '@/components/molecules/TaskItemActions';
 import TaskForm from '@/components/organisms/TaskForm';
 import { isPast } from 'date-fns';
 
-const TaskItem = ({ task, categories, onToggleComplete, onDelete, onEdit, onDragStart, onDragOver, onDrop, index }) => {
+const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelete, onEdit, onDragStart, onDragOver, onDrop, index }, ref) => {
     const [isEditing, setIsEditing] = useState(false);
     const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && !task.completed;
 
@@ -17,6 +17,7 @@ const TaskItem = ({ task, categories, onToggleComplete, onDelete, onEdit, onDrag
 
     return (
         <motion.div
+            ref={ref}
             key={task.id}
             layout
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -90,6 +91,9 @@ const TaskItem = ({ task, categories, onToggleComplete, onDelete, onEdit, onDrag
             </div>
         </motion.div>
     );
-};
+});
+
+// Add display name for better debugging
+TaskItem.displayName = 'TaskItem';
 
 export default TaskItem;
