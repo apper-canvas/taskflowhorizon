@@ -137,11 +137,15 @@ const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory
         }
     };
 
-    const handleEditTask = async (taskId, updates) => {
+const handleEditTask = async (taskId, updates) => {
         try {
             const updated = await taskService.update(taskId, updates);
             setTasks(prev => prev.map(t => t.id === taskId ? updated : t));
-            toast.success('Task updated');
+            
+            // Only show success toast for non-timer updates to avoid spam
+            if (!('isTimerRunning' in updates) && !('timeSpent' in updates)) {
+                toast.success('Task updated');
+            }
         } catch (error) {
             toast.error('Failed to update task');
         }

@@ -102,6 +102,45 @@ body {
   width: 8px;
   height: 8px;
   pointer-events: none;
-  z-index: 1000;
+z-index: 1000;
   animation: confetti-fall 3s linear forwards;
+}
+
+/* Timer-specific styles */
+.timer-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.timer-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.timer-button.running {
+  background: linear-gradient(135deg, #10B981, #059669);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.timer-button.running:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.timer-display {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+.timer-running-indicator {
+  animation: timer-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  0%, 100% { 
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }

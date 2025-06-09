@@ -32,12 +32,14 @@ export default {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
         heading: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'system-ui']
       },
-      animation: {
+animation: {
         'confetti': 'confetti 0.6s ease-out',
         'bounce-in': 'bounceIn 0.3s ease-out',
-        'scale-in': 'scaleIn 0.2s ease-out'
+        'scale-in': 'scaleIn 0.2s ease-out',
+        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'timer-pulse': 'timerPulse 1.5s ease-in-out infinite'
       },
-      keyframes: {
+keyframes: {
         confetti: {
           '0%': { transform: 'scale(0) rotate(0deg)', opacity: '0' },
           '50%': { transform: 'scale(1.2) rotate(180deg)', opacity: '1' },
@@ -51,6 +53,20 @@ export default {
         scaleIn: {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' }
+        },
+        pulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' }
+        },
+        timerPulse: {
+          '0%, 100%': { 
+            transform: 'scale(1)',
+            opacity: '1' 
+          },
+          '50%': { 
+            transform: 'scale(1.05)',
+            opacity: '0.8' 
+          }
         }
       }
     },

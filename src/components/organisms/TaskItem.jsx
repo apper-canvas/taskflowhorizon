@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import TaskCheckbox from '@/components/molecules/TaskCheckbox';
 import TaskMeta from '@/components/molecules/TaskMeta';
 import TaskItemActions from '@/components/molecules/TaskItemActions';
+import TaskTimer from '@/components/molecules/TaskTimer';
 import TaskForm from '@/components/organisms/TaskForm';
 import { isPast } from 'date-fns';
 import { getHighlightedParts } from '@/utils/searchUtils';
+import { formatTime } from '@/utils/timerUtils';
 const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelete, onEdit, onDragStart, onDragOver, onDrop, index, searchQuery = '' }, ref) => {
     const [isEditing, setIsEditing] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
     const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && !task.completed;
 
     const handleSave = (updates) => {
@@ -89,16 +93,71 @@ const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelet
                                             onDeleteClick={() => onDelete(task.id)}
                                         />
                                     )}
-                                </div>
+</div>
 
                                 {/* Task Meta */}
-                                <TaskMeta
-                                    category={task.category}
-                                    priority={task.priority}
-                                    dueDate={task.dueDate}
-                                    isCompleted={task.completed}
-                                    categoriesList={categories}
-                                />
+                                <div className="flex items-center justify-between mt-3">
+                                    <TaskMeta
+                                        category={task.category}
+                                        priority={task.priority}
+                                        dueDate={task.dueDate}
+                                        isCompleted={task.completed}
+                                        categoriesList={categories}
+                                    />
+                                    
+                                    {/* Time Spent & Expand Button */}
+                                    <div className="flex items-center gap-3">
+                                        {(task.timeSpent > 0 || task.isTimerRunning) && (
+                                            <div className="text-xs text-gray-500 flex items-center gap-1">
+                                                <span>Time:</span>
+                                                <span className="font-medium">{formatTime(task.timeSpent || 0)}</span>
+                                            </div>
+                                        )}
+                                        
+                                        {!task.completed && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setIsExpanded(!isExpanded);
+                                                }}
+                                                className="p-1 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary"
+                                                aria-label={isExpanded ? "Collapse task details" : "Expand task details"}
+                                                aria-expanded={isExpanded}
+                                            >
+                                                {isExpanded ? (
+                                                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                                                ) : (
+                                                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Expanded Timer Section */}
+                                <AnimatePresence>
+                                    {isExpanded && !task.completed && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="mt-4 pt-4 border-t border-gray-100">
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="text-sm font-medium text-gray-700 mb-2">Timer</h4>
+                                                </div>
+                                                <TaskTimer
+                                                    task={task}
+                                                    onUpdate={onEdit}
+                                                    className="justify-start"
+                                                />
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </>
                         )}
                     </div>

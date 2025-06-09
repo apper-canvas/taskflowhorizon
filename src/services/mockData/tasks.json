@@ -9,9 +9,12 @@
     "completed": false,
     "completedAt": null,
     "createdAt": "2024-01-15T10:30:00.000Z",
-    "order": 0
+    "order": 0,
+    "timeSpent": 0,
+    "isTimerRunning": false,
+    "timerStartedAt": null
   },
-  {
+{
     "id": "2", 
     "title": "Prepare presentation for client meeting",
     "description": "Create slides covering project timeline, deliverables, and next steps",
@@ -21,9 +24,12 @@
     "completed": false,
     "completedAt": null,
     "createdAt": "2024-01-15T11:15:00.000Z",
-    "order": 1
+    "order": 1,
+    "timeSpent": 1800,
+    "isTimerRunning": false,
+    "timerStartedAt": null
   },
-  {
+{
     "id": "3",
     "title": "Schedule dentist appointment",
     "description": "Book routine cleaning and checkup for next month",
@@ -33,9 +39,12 @@
     "completed": false,
     "completedAt": null,
     "createdAt": "2024-01-15T14:20:00.000Z",
-    "order": 2
+    "order": 2,
+    "timeSpent": 600,
+    "isTimerRunning": false,
+    "timerStartedAt": null
   },
-  {
+{
     "id": "4",
     "title": "Research vacation destinations",
     "description": "Look into coastal destinations for summer vacation, compare prices and activities",
@@ -45,9 +54,12 @@
     "completed": false,
     "completedAt": null,
     "createdAt": "2024-01-15T16:45:00.000Z",
-    "order": 3
+    "order": 3,
+    "timeSpent": 0,
+    "isTimerRunning": false,
+    "timerStartedAt": null
   },
-  {
+{
     "id": "5",
     "title": "Update team on project milestones",
     "description": "Send weekly status report and schedule next sprint planning meeting",
@@ -57,6 +69,9 @@
     "completed": true,
     "completedAt": "2024-01-16T09:30:00.000Z",
     "createdAt": "2024-01-15T08:00:00.000Z",
-    "order": 4
+    "order": 4,
+    "timeSpent": 3600,
+    "isTimerRunning": false,
+    "timerStartedAt": null
   }
 ]
