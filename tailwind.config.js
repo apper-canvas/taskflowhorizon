@@ -28,11 +28,11 @@ export default {
           900: '#0f172a'
         }
       },
-      fontFamily: {
+fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
         heading: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'system-ui']
       },
-animation: {
+      animation: {
         'confetti': 'confetti 0.6s ease-out',
         'bounce-in': 'bounceIn 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
