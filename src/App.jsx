@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Layout from './components/Layout';
-import HomePage from '@/components/pages/HomePage';
+import HomePage from './components/pages/HomePage';
 import NotFound from './pages/NotFound';
 import { routes } from './config/routes';
 
