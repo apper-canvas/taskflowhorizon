@@ -1,37 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { isToday, isPast, isThisWeek } from 'date-fns';
 import EmptyStateMessage from '@/components/molecules/EmptyStateMessage';
 import QuickAddTaskButton from '@/components/molecules/QuickAddTaskButton';
+import SearchBar from '@/components/molecules/SearchBar';
 import TaskForm from '@/components/organisms/TaskForm';
 import TaskItem from '@/components/organisms/TaskItem';
-import { taskService } from '@/services'; // Ensure this path is correct
+import { taskService } from '@/services';
+import { fuzzySearch, taskMatchesSearch } from '@/utils/searchUtils';
 
 const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory }) => {
     const [showForm, setShowForm] = useState(false);
     const [draggedTask, setDraggedTask] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+// Memoize filtered and searched tasks for performance
+    const filteredTasks = useMemo(() => {
+        let filtered = tasks.filter(task => {
+            // Category filter
+            if (selectedCategory !== 'all' && task.category !== selectedCategory) {
+                return false;
+            }
+            
+            // Status filter
+            if (filter === 'active' && task.completed) return false;
+            if (filter === 'completed' && !task.completed) return false;
+            
+            // Search filter
+            if (searchQuery && !taskMatchesSearch(task, searchQuery)) {
+                return false;
+            }
+            
+            return true;
+        });
 
-    const filteredTasks = tasks.filter(task => {
-        // Category filter
-        if (selectedCategory !== 'all' && task.category !== selectedCategory) {
-            return false;
+        // If there's a search query, use fuzzy search for better ranking
+        if (searchQuery) {
+            const searchResults = fuzzySearch(filtered, searchQuery, {
+                keys: ['title', 'description'],
+                threshold: 0.4
+            });
+            
+            // Sort search results by relevance score, then by completion status
+            return searchResults.sort((a, b) => {
+                if (a.completed !== b.completed) {
+                    return a.completed ? 1 : -1;
+                }
+                return (a._searchScore || 0) - (b._searchScore || 0);
+            });
         }
-        
-        // Status filter
-        if (filter === 'active' && task.completed) return false;
-        if (filter === 'completed' && !task.completed) return false;
-        
-        return true;
-    }).sort((a, b) => {
-        // Sort by completion status first (active tasks first)
-        if (a.completed !== b.completed) {
-            return a.completed ? 1 : -1;
-        }
-        
-        // Then by order
-        return a.order - b.order;
-    });
+
+        // Default sorting when no search
+        return filtered.sort((a, b) => {
+            // Sort by completion status first (active tasks first)
+            if (a.completed !== b.completed) {
+                return a.completed ? 1 : -1;
+            }
+            
+            // Then by order
+            return a.order - b.order;
+        });
+    }, [tasks, selectedCategory, filter, searchQuery]);
+
+    const handleSearch = (query) => {
+        setSearchQuery(query);
+    };
 
     const createConfetti = (element) => {
         const colors = ['#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#3B82F6'];
@@ -159,20 +192,71 @@ const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory
         }
     };
 
+// Show empty state only when there are no tasks at all, or when search yields no results
     if (filteredTasks.length === 0 && !showForm) {
+        const isSearchEmpty = searchQuery && tasks.length > 0;
+        
         return (
             <div className="p-6 max-w-full overflow-hidden">
-                <EmptyStateMessage
-                    filter={filter}
-                    selectedCategory={selectedCategory}
-                    onAddTask={() => setShowForm(true)}
-                />
+                {/* Search Bar */}
+                <motion.div
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="mb-8"
+                >
+                    <SearchBar
+                        onSearch={handleSearch}
+                        placeholder="Search tasks by title or description..."
+                    />
+                </motion.div>
+
+                {isSearchEmpty ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center py-12"
+                    >
+                        <div className="text-gray-400 mb-4">
+                            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
+                        <p className="text-gray-600 mb-6">
+                            No tasks match your search for "<span className="font-medium">{searchQuery}</span>"
+                        </p>
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="text-secondary hover:text-purple-700 font-medium"
+                        >
+                            Clear search
+                        </button>
+                    </motion.div>
+                ) : (
+                    <EmptyStateMessage
+                        filter={filter}
+                        selectedCategory={selectedCategory}
+                        onAddTask={() => setShowForm(true)}
+                    />
+                )}
             </div>
         );
     }
 
-    return (
+return (
         <div className="p-6 max-w-full overflow-hidden">
+            {/* Search Bar */}
+            <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="mb-6"
+            >
+                <SearchBar
+                    onSearch={handleSearch}
+                    placeholder="Search tasks by title or description..."
+                />
+            </motion.div>
+
             {/* Quick Add Bar / New Task Form */}
             <motion.div
                 initial={{ y: -20, opacity: 0 }}
@@ -190,6 +274,17 @@ const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory
                 )}
             </motion.div>
 
+{/* Search Results Count */}
+            {searchQuery && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mb-4 text-sm text-gray-600"
+                >
+                    Found {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} matching "{searchQuery}"
+                </motion.div>
+            )}
+
             {/* Task List */}
             <div className="space-y-3">
                 <AnimatePresence mode="popLayout">
@@ -205,6 +300,7 @@ const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory
                             onDragOver={handleDragOver}
                             onDrop={handleDrop}
                             index={index}
+                            searchQuery={searchQuery}
                         />
                     ))}
                 </AnimatePresence>

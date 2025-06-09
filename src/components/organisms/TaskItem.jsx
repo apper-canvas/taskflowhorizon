@@ -5,14 +5,29 @@ import TaskMeta from '@/components/molecules/TaskMeta';
 import TaskItemActions from '@/components/molecules/TaskItemActions';
 import TaskForm from '@/components/organisms/TaskForm';
 import { isPast } from 'date-fns';
-
-const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelete, onEdit, onDragStart, onDragOver, onDrop, index }, ref) => {
+import { getHighlightedParts } from '@/utils/searchUtils';
+const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelete, onEdit, onDragStart, onDragOver, onDrop, index, searchQuery = '' }, ref) => {
     const [isEditing, setIsEditing] = useState(false);
     const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && !task.completed;
 
     const handleSave = (updates) => {
         onEdit(task.id, updates);
         setIsEditing(false);
+    };
+
+    // Get highlighted text parts for search
+    const titleParts = getHighlightedParts(task.title || '', searchQuery);
+    const descriptionParts = getHighlightedParts(task.description || '', searchQuery);
+
+    const renderHighlightedText = (parts, className = '') => {
+        return parts.map((part, index) => (
+            <span
+                key={index}
+                className={part.highlighted ? 'bg-yellow-200 font-medium px-0.5 rounded' : ''}
+            >
+                {part.text}
+            </span>
+        ));
     };
 
     return (
@@ -51,18 +66,18 @@ const TaskItem = React.forwardRef(({ task, categories, onToggleComplete, onDelet
                             />
                         ) : (
                             <>
-                                <div className="flex items-start justify-between gap-4">
+<div className="flex items-start justify-between gap-4">
                                     <div className="min-w-0 flex-1">
                                         <h3 className={`font-medium break-words ${
                                             task.completed ? 'line-through text-gray-500' : 'text-gray-900'
                                         }`}>
-                                            {task.title}
+                                            {searchQuery ? renderHighlightedText(titleParts) : task.title}
                                         </h3>
                                         {task.description && (
                                             <p className={`text-sm mt-1 break-words ${
                                                 task.completed ? 'text-gray-400' : 'text-gray-600'
                                             }`}>
-                                                {task.description}
+                                                {searchQuery ? renderHighlightedText(descriptionParts) : task.description}
                                             </p>
                                         )}
                                     </div>
