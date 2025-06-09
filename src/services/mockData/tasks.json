@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "title": "Review quarterly budget proposals",
+    "description": "Analyze Q4 budget allocations and provide recommendations for optimization",
+    "category": "Work",
+    "priority": "high",
+    "dueDate": "2024-01-20",
+    "completed": false,
+    "completedAt": null,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "order": 0
+  },
+  {
+    "id": "2", 
+    "title": "Prepare presentation for client meeting",
+    "description": "Create slides covering project timeline, deliverables, and next steps",
+    "category": "Work",
+    "priority": "high",
+    "dueDate": "2024-01-19",
+    "completed": false,
+    "completedAt": null,
+    "createdAt": "2024-01-15T11:15:00.000Z",
+    "order": 1
+  },
+  {
+    "id": "3",
+    "title": "Schedule dentist appointment",
+    "description": "Book routine cleaning and checkup for next month",
+    "category": "Personal",
+    "priority": "medium",
+    "dueDate": "2024-01-25",
+    "completed": false,
+    "completedAt": null,
+    "createdAt": "2024-01-15T14:20:00.000Z",
+    "order": 2
+  },
+  {
+    "id": "4",
+    "title": "Research vacation destinations",
+    "description": "Look into coastal destinations for summer vacation, compare prices and activities",
+    "category": "Personal",
+    "priority": "low",
+    "dueDate": "2024-02-01",
+    "completed": false,
+    "completedAt": null,
+    "createdAt": "2024-01-15T16:45:00.000Z",
+    "order": 3
+  },
+  {
+    "id": "5",
+    "title": "Update team on project milestones",
+    "description": "Send weekly status report and schedule next sprint planning meeting",
+    "category": "Work",
+    "priority": "medium",
+    "dueDate": "2024-01-18",
+    "completed": true,
+    "completedAt": "2024-01-16T09:30:00.000Z",
+    "createdAt": "2024-01-15T08:00:00.000Z",
+    "order": 4
+  }
+]
