@@ -2,21 +2,24 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { isToday, isPast, isThisWeek } from 'date-fns';
+import { List, Columns } from 'lucide-react';
 import EmptyStateMessage from '@/components/molecules/EmptyStateMessage';
 import QuickAddTaskButton from '@/components/molecules/QuickAddTaskButton';
 import SearchBar from '@/components/molecules/SearchBar';
 import SelectionCheckbox from '@/components/molecules/SelectionCheckbox';
 import TaskForm from '@/components/organisms/TaskForm';
 import TaskItem from '@/components/organisms/TaskItem';
+import KanbanBoard from '@/components/organisms/KanbanBoard';
 import { taskService } from '@/services';
 import { fuzzySearch, taskMatchesSearch } from '@/utils/searchUtils';
+
 const TaskFeatureArea = ({ tasks, setTasks, categories, filter, selectedCategory }) => {
-    const [showForm, setShowForm] = useState(false);
+const [showForm, setShowForm] = useState(false);
     const [draggedTask, setDraggedTask] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTasks, setSelectedTasks] = useState(new Set());
     const [showSelection, setShowSelection] = useState(false);
-
+    const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
     // Memoize filtered and searched tasks for performance
     const filteredTasks = useMemo(() => {
         let filtered = tasks.filter(task => {
@@ -291,137 +294,205 @@ const handleEditTask = async (taskId, updates) => {
 
 return (
         <div className="p-6 max-w-full overflow-hidden">
-            {/* Search Bar */}
+            {/* Header with Search and View Toggle */}
             <motion.div
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 className="mb-6"
             >
-                <SearchBar
-                    onSearch={handleSearch}
-                    placeholder="Search tasks by title or description..."
-                />
-            </motion.div>
-
-            {/* Selection Controls */}
-            {filteredTasks.length > 0 && (
-                <motion.div
-                    initial={{ y: -10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="mb-6"
-                >
-                    <div className="task-list-header rounded-lg p-4 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <button
-                                onClick={handleToggleSelection}
-                                className="text-sm font-medium text-secondary hover:text-purple-700 transition-colors"
-                            >
-                                {showSelection ? 'Cancel Selection' : 'Select Tasks'}
-                            </button>
-                            
-                            {showSelection && (
-                                <>
-                                    <div className="w-px h-4 bg-gray-300" />
-                                    <div className="flex items-center gap-3">
-                                        <SelectionCheckbox
-                                            isSelected={isAllSelected}
-                                            isIndeterminate={isIndeterminate}
-                                            onChange={handleSelectAll}
-                                            aria-label="Select all tasks"
-                                        />
-                                        <span className="text-sm text-gray-600">
-                                            Select All ({filteredTasks.length})
-                                        </span>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                        
-                        {showSelection && selectedCount > 0 && (
-                            <div className="flex items-center gap-4">
-                                <span className="text-sm text-gray-600">
-                                    {selectedCount} selected
-                                </span>
-                                <button
-                                    onClick={clearSelection}
-                                    className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                                >
-                                    Clear
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </motion.div>
-            )}
-
-            {/* Quick Add Bar / New Task Form */}
-            <motion.div
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="mb-8"
-            >
-                {!showForm ? (
-                    <QuickAddTaskButton onClick={() => setShowForm(true)} />
-                ) : (
-                    <TaskForm
-                        categories={categories}
-                        onSubmit={handleAddTask}
-                        onCancel={() => setShowForm(false)}
-                    />
-                )}
-            </motion.div>
-
-{/* Search Results Count */}
-            {searchQuery && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mb-4 text-sm text-gray-600"
-                >
-                    Found {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} matching "{searchQuery}"
-                </motion.div>
-            )}
-
-            {/* Task List */}
-            <div className="space-y-3">
-<AnimatePresence mode="popLayout">
-                    {filteredTasks.map((task, index) => (
-                        <TaskItem
-                            key={task.id}
-                            task={task}
-                            categories={categories}
-                            onToggleComplete={handleToggleComplete}
-                            onDelete={handleDeleteTask}
-                            onEdit={handleEditTask}
-                            onDragStart={handleDragStart}
-                            onDragOver={handleDragOver}
-                            onDrop={handleDrop}
-                            index={index}
-                            searchQuery={searchQuery}
-                            isSelected={selectedTasks.has(task.id)}
-                            onSelectionChange={handleTaskSelection}
-                            showSelection={showSelection}
+                <div className="flex items-center justify-between gap-4 mb-4">
+                    <div className="flex-1 max-w-md">
+                        <SearchBar
+                            onSearch={handleSearch}
+                            placeholder="Search tasks by title or description..."
                         />
-                    ))}
-                </AnimatePresence>
-            </div>
+                    </div>
+                    
+                    {/* View Toggle */}
+                    <div className="view-toggle">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`view-toggle-button ${viewMode === 'list' ? 'active' : ''}`}
+                        >
+                            <List className="w-4 h-4 mr-2" />
+                            List
+                        </button>
+                        <button
+                            onClick={() => setViewMode('kanban')}
+                            className={`view-toggle-button ${viewMode === 'kanban' ? 'active' : ''}`}
+                        >
+                            <Columns className="w-4 h-4 mr-2" />
+                            Kanban
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
 
-            {/* Show Add Task Button at bottom if no form is shown */}
-            {!showForm && filteredTasks.length > 0 && (
-                <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="mt-8 text-center"
-                >
-                    <QuickAddTaskButton
-                        onClick={() => setShowForm(true)}
-                        className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-lg"
+            {/* Kanban View */}
+            {viewMode === 'kanban' ? (
+                <>
+                    {/* Quick Add Bar for Kanban */}
+                    <motion.div
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="mb-6"
                     >
-                         {/* Re-using QuickAddTaskButton, but overriding className as the original had slightly different button for "Add Another Task" */}
-                        Add Another Task
-                    </QuickAddTaskButton>
-                </motion.div>
-            )}
+                        {!showForm ? (
+                            <QuickAddTaskButton onClick={() => setShowForm(true)} />
+                        ) : (
+                            <TaskForm
+                                categories={categories}
+                                onSubmit={handleAddTask}
+                                onCancel={() => setShowForm(false)}
+                            />
+                        )}
+                    </motion.div>
+
+                    {/* Search Results Count for Kanban */}
+                    {searchQuery && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="mb-4 text-sm text-gray-600"
+                        >
+                            Found {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} matching "{searchQuery}"
+                        </motion.div>
+                    )}
+
+                    <KanbanBoard
+                        tasks={filteredTasks}
+                        onTaskUpdate={handleEditTask}
+                        onTaskToggleComplete={handleToggleComplete}
+                        onTaskDelete={handleDeleteTask}
+                        onTaskEdit={handleEditTask}
+                        categories={categories}
+                        searchQuery={searchQuery}
+                    />
+                </>
+            ) : (
+                <>
+                    {/* List View - existing content */}
+
+{/* Selection Controls */}
+                    {filteredTasks.length > 0 && (
+                        <motion.div
+                            initial={{ y: -10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            className="mb-6"
+                        >
+                            <div className="task-list-header rounded-lg p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={handleToggleSelection}
+                                        className="text-sm font-medium text-secondary hover:text-purple-700 transition-colors"
+                                    >
+                                        {showSelection ? 'Cancel Selection' : 'Select Tasks'}
+                                    </button>
+                                    
+                                    {showSelection && (
+                                        <>
+                                            <div className="w-px h-4 bg-gray-300" />
+                                            <div className="flex items-center gap-3">
+                                                <SelectionCheckbox
+                                                    isSelected={isAllSelected}
+                                                    isIndeterminate={isIndeterminate}
+                                                    onChange={handleSelectAll}
+                                                    aria-label="Select all tasks"
+                                                />
+                                                <span className="text-sm text-gray-600">
+                                                    Select All ({filteredTasks.length})
+                                                </span>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                                
+                                {showSelection && selectedCount > 0 && (
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-sm text-gray-600">
+                                            {selectedCount} selected
+                                        </span>
+                                        <button
+                                            onClick={clearSelection}
+                                            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* Quick Add Bar / New Task Form */}
+                    <motion.div
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="mb-8"
+                    >
+                        {!showForm ? (
+                            <QuickAddTaskButton onClick={() => setShowForm(true)} />
+                        ) : (
+                            <TaskForm
+                                categories={categories}
+                                onSubmit={handleAddTask}
+                                onCancel={() => setShowForm(false)}
+                            />
+                        )}
+                    </motion.div>
+
+                    {/* Search Results Count */}
+                    {searchQuery && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="mb-4 text-sm text-gray-600"
+                        >
+                            Found {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} matching "{searchQuery}"
+                        </motion.div>
+                    )}
+
+                    {/* Task List */}
+                    <div className="space-y-3">
+                        <AnimatePresence mode="popLayout">
+                            {filteredTasks.map((task, index) => (
+                                <TaskItem
+                                    key={task.id}
+                                    task={task}
+                                    categories={categories}
+                                    onToggleComplete={handleToggleComplete}
+                                    onDelete={handleDeleteTask}
+                                    onEdit={handleEditTask}
+                                    onDragStart={handleDragStart}
+                                    onDragOver={handleDragOver}
+                                    onDrop={handleDrop}
+                                    index={index}
+                                    searchQuery={searchQuery}
+                                    isSelected={selectedTasks.has(task.id)}
+                                    onSelectionChange={handleTaskSelection}
+                                    showSelection={showSelection}
+                                />
+                            ))}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Show Add Task Button at bottom if no form is shown */}
+                    {!showForm && filteredTasks.length > 0 && (
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            className="mt-8 text-center"
+                        >
+                            <QuickAddTaskButton
+                                onClick={() => setShowForm(true)}
+                                className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-lg"
+                            >
+                                Add Another Task
+                            </QuickAddTaskButton>
+                        </motion.div>
+                    )}
+                </>
+)}
         </div>
     );
 };

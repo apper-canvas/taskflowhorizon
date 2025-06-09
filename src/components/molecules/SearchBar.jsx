@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
 
-const SearchBar = ({ onSearch, placeholder = "Search tasks...", className = "" }) => {
+const SearchBar = ({ onSearch, placeholder = "Search tasks...", className = "", wrapperClassName = "" }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const debounceRef = useRef(null);
@@ -42,10 +42,10 @@ const SearchBar = ({ onSearch, placeholder = "Search tasks...", className = "" }
     };
 
     return (
-        <motion.div
+<motion.div
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className={`relative ${className}`}
+            className={`relative ${wrapperClassName}`}
         >
             <div className={`relative flex items-center bg-white border rounded-lg transition-all duration-200 ${
                 isFocused ? 'border-secondary shadow-md ring-2 ring-secondary/20' : 'border-gray-200 shadow-sm'

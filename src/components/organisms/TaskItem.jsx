@@ -59,13 +59,13 @@ return (
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: -20 }}
             transition={{ delay: index * 0.05 }}
-            draggable={!task.completed && !showSelection}
+draggable={false}
             onDragStart={(e) => onDragStart(e, task)}
             onDragOver={onDragOver}
             onDrop={(e) => onDrop(e, task)}
-            className={`
+className={`
                 bg-white rounded-lg border shadow-sm hover:shadow-md transition-all duration-200 
-                ${!showSelection ? 'cursor-move' : 'cursor-default'}
+                cursor-default
                 ${task.completed ? 'opacity-75' : ''}
                 ${isOverdue ? 'border-red-200 bg-red-50' : 'border-gray-200'}
                 ${isSelected ? 'task-selected' : ''}

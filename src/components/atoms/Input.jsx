@@ -49,8 +49,8 @@ const Input = React.forwardRef(({
           <option key={index} value={option.value}>
             {option.label}
           </option>
-        ))}
-</select>
+))}
+      </select>
     );
   }
 

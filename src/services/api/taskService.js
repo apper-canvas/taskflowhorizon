@@ -24,6 +24,7 @@ async create(taskData) {
     const newTask = {
       id: Date.now().toString(),
       ...taskData,
+      status: taskData.status || 'todo',
       createdAt: new Date().toISOString(),
       completedAt: null,
       timeSpent: 0,

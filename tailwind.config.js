@@ -6,7 +6,7 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
+colors: {
         primary: '#5B21B6',
         secondary: '#8B5CF6', 
         accent: '#10B981',
@@ -26,20 +26,30 @@ export default {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a'
+        },
+        kanban: {
+          todo: '#EFF6FF',
+          'todo-border': '#DBEAFE',
+          inprogress: '#FEF3C7',
+          'inprogress-border': '#FDE68A',
+          done: '#ECFDF5',
+          'done-border': '#BBF7D0'
         }
-},
+      },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
         heading: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'system-ui']
       },
-      animation: {
+animation: {
         'confetti': 'confetti 0.6s ease-out',
         'bounce-in': 'bounceIn 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
         'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-'timer-pulse': 'timerPulse 1.5s ease-in-out infinite'
+        'timer-pulse': 'timerPulse 1.5s ease-in-out infinite',
+        'kanban-drag': 'kanbanDrag 0.2s ease-out',
+        'kanban-drop': 'kanbanDrop 0.3s ease-out'
       },
-      keyframes: {
+keyframes: {
         confetti: {
           '0%': { transform: 'scale(0) rotate(0deg)', opacity: '0' },
           '50%': { transform: 'scale(1.2) rotate(180deg)', opacity: '1' },
@@ -67,6 +77,14 @@ export default {
             transform: 'scale(1.05)',
             opacity: '0.8' 
           }
+        },
+        kanbanDrag: {
+          '0%': { transform: 'rotate(0deg) scale(1)', opacity: '1' },
+          '100%': { transform: 'rotate(5deg) scale(1.05)', opacity: '0.8' }
+        },
+        kanbanDrop: {
+          '0%': { transform: 'scale(1.1)', opacity: '0.8' },
+          '100%': { transform: 'scale(1)', opacity: '1' }
         }
       }
     },
